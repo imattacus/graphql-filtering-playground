@@ -1,0 +1,72 @@
+{
+  "appliedFilters": [
+    {
+      "price": {
+        "gt": 50
+      }
+    }
+  ],
+  "filterFacets": [
+    {
+      "groupName": "provider",
+      "composition": "OR",
+      "facets": [
+        {
+          "name": "Sky",
+          "predicate": {
+            "provider": {
+              "eq": "Sky"
+            }
+          }
+        },
+        {
+          "name": "TalkTalk",
+          "predicate": {
+            "provider": {
+              "eq": "TalkTalk"
+            }
+          }
+        },
+        {
+          "name": "Vodafone",
+          "predicate": {
+            "provider": {
+              "eq": "Vodafone"
+            }
+          }
+        },
+        {
+          "name": "Plusnet",
+          "predicate": {
+            "provider": {
+              "eq": "Plusnet"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "groupName": "prices",
+      "composition": "OR",
+      "facets": [
+        {
+          "name": "0-50",
+          "predicate": {
+            "price": {
+              "gt": 0,
+              "lte": 50
+            }
+          }
+        },
+        {
+          "name": "50+",
+          "predicate": {
+            "price": {
+              "gt": 50
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
