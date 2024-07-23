@@ -4,6 +4,11 @@
       "price": {
         "gt": 50
       }
+    },
+    {
+      "provider": {
+        "eq": "Sky"
+      }
     }
   ],
   "filterFacets": [
@@ -47,7 +52,7 @@
     },
     {
       "groupName": "prices",
-      "composition": "OR",
+      "composition": "AND",
       "facets": [
         {
           "name": "0-50",
