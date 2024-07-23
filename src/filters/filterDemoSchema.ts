@@ -1,23 +1,6 @@
 import { makeExecutableSchema } from "@graphql-tools/schema"
 import { typeDefs } from "./typeDefs"
-
-interface Product {
-  id: number
-  name: string
-  price: number
-  provider: string
-  downloadSpeed: number
-  uploadSpeed: number
-}
-
-const products: Product[] = [
-  { id: 1, name: "Product 1 Sky £100 100 down 100 up", price: 100, downloadSpeed: 100, uploadSpeed: 100, provider: "Sky" },
-  { id: 2, name: "Product 2 Sky £200 100 down 50 up", price: 200, downloadSpeed: 100, uploadSpeed: 50, provider: "Sky" },
-  { id: 3, name: "Product 3 Plusnet £50 25 down 5 up", price: 50, downloadSpeed: 25, uploadSpeed: 5, provider: "Plusnet" },
-  { id: 4, name: "Product 4 Plusnet £100 100 down 90 up", price: 100, downloadSpeed: 100, uploadSpeed: 90, provider: "Plusnet" },
-  { id: 5, name: "Product 5 Vodafone £70 90 down 90 up", price: 70, downloadSpeed: 90, uploadSpeed: 90, provider: "Vodafone" },
-  { id: 6, name: "Product 6 Vodafone £10 5 down 5 up", price: 10, downloadSpeed: 5, uploadSpeed: 5, provider: "Vodafone" }
-]
+import { products } from "../products"
 
 const stringFilter = (value: string, filter: { eq?: string, contains?: string }) => {
   if (filter.eq && filter.eq !== value) {
@@ -30,19 +13,20 @@ const stringFilter = (value: string, filter: { eq?: string, contains?: string })
 }
 
 const intFilter = (value: number, filter: { eq?: number, gt?: number, gte?: number, lt?: number, lte?: number }) => {
-  if (filter.eq && filter.eq !== value) {
+  if (filter.eq && !(filter.eq == value)) {
     return false
   }
-  if (filter.gt && filter.gt > value) {
+  if (filter.gt && !(value > filter.gt)) {
     return false
   }
-  if (filter.gte && filter.gte >= value) {
+  if (filter.gte && !(value >= filter.gte)) {
     return false
   }
-  if (filter.lt && filter.lt < value) {
+  if (filter.lt && !(value < filter.lt)) {
+    console.log(`value: ${value}, filter.lt: ${filter.lt} `)
     return false
   }
-  if (filter.lte && filter.lte <= value) {
+  if (filter.lte && !(value <= filter.lte)) {
     return false
   }
   return true
@@ -105,6 +89,7 @@ const resolvers = {
           // filters applied from THIS facet group
           const predicatesInThisGroup = facetGroup.facets.map((facet) =>
             facet.predicate)
+          console.log({ predicatesInThisGroup })
 
           baseFilters = baseFilters.reduce((acc, predicate) => {
             if (predicatesInThisGroup.some((facetPredicate) => {
@@ -122,7 +107,7 @@ const resolvers = {
           return applyProductFilters(product, baseFilters)
         })
 
-        console.log({ baseProducts, baseFilters })
+        console.log({ facetGroup, baseProducts, baseFilters: JSON.stringify(baseFilters) })
 
         facetGroup.facets.forEach((facet) => {
           // Apply this predicate to the products to see how many would be left
