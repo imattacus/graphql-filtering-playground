@@ -1,5 +1,6 @@
 import { makeExecutableSchema } from "@graphql-tools/schema"
 import { typeDefs } from "./typeDefs"
+import sift from "sift"
 
 interface Product {
   id: number
@@ -19,61 +20,6 @@ const products: Product[] = [
   { id: 6, name: "Product 6 Vodafone £10 5 down 5 up", price: 10, downloadSpeed: 5, uploadSpeed: 5, provider: "Vodafone" }
 ]
 
-const stringFilter = (value: string, filter: { eq?: string, contains?: string }) => {
-  if (filter.eq && filter.eq !== value) {
-    return false
-  }
-  if (filter.contains && !value.includes(filter.contains)) {
-    return false
-  }
-  return true
-}
-
-const intFilter = (value: number, filter: { eq?: number, gt?: number, gte?: number, lt?: number, lte?: number }) => {
-  if (filter.eq && filter.eq !== value) {
-    return false
-  }
-  if (filter.gt && filter.gt > value) {
-    return false
-  }
-  if (filter.gte && filter.gte >= value) {
-    return false
-  }
-  if (filter.lt && filter.lt < value) {
-    return false
-  }
-  if (filter.lte && filter.lte <= value) {
-    return false
-  }
-  return true
-}
-
-const applyProductFilter = (product, filter) => {
-  if (filter.name) {
-    if (stringFilter(product.name, filter.name) === false) {
-      return false
-    }
-  }
-  if (filter.price) {
-    if (intFilter(product.price, filter.price) === false) {
-      return false
-    }
-  }
-  if (filter.provider) {
-    if (stringFilter(product.provider, filter.provider) === false) {
-      return false
-    }
-  }
-  return true
-}
-
-const applyProductFilters = (product, filters) => {
-  return filters.every((filter) => {
-    return applyProductFilter(product, filter)
-  })
-}
-
-
 const resolvers = {
   Query: {
     productList: () => {
@@ -85,14 +31,19 @@ const resolvers = {
   },
   ProductList: {
     filteredProducts: (parent, { filters }) => {
-      const filteredProducts = parent.products.filter((product) => {
-        return applyProductFilters(product, filters)
-      })
+      const siftQuery = filters.reduce((acc, filter) => {
+        return {
+          ...acc,
+          [filter.field]: filter.query
+        }
+      }, {})
+
+      const filteredProducts = parent.products.filter(
+        sift(siftQuery)
+      )
       return {
         count: filteredProducts.length,
-        products: filteredProducts,
-        __originalProducts: parent.products,
-        __appliedFilters: filters
+        products: filteredProducts
       }
     },
     facets(parent, { facets: requestedFacetGroups }) {

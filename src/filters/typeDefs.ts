@@ -51,10 +51,15 @@ export const typeDefs = /* GraphQL */ `
     facets: [FacetPredicateInput!]
   }
 
+  input SiftInput {
+    field: String!
+    query: String!
+  }
+
   type ProductList {
     count: Int!
     products: [Product!]!
-    filteredProducts(filters: [ProductFilters!]): ProductList!
+    filteredProducts(filters: [SiftInput!]!): ProductList!
     facets(facets: [FacetInput!]!): [FacetGroup!]!
   }
 
